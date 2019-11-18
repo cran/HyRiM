@@ -1,11 +1,12 @@
-ddef123ce51090684b34713df3cd8990 *DESCRIPTION
+80c4cec888343c5f4dbd2723341012df *DESCRIPTION
 77a96a856824f345fa91b878f9d1da10 *NAMESPACE
-ce688e1640859be188b614df6fe8531d *R/HyRiM-internal.R
+ea334ad9dc437535ca6f22376a9a5b13 *NEWS
+d41d8cd98f00b204e9800998ecf8427e *R/HyRiM-internal.R
 9c163f287678bcd24abc193810841ac8 *R/cdf.R
 9804126ea6fe5f038a5806aee8445b8a *R/density.mosg.lossdistribution.R
 2bb2ac58e236b48d1dd96c1812fc1f16 *R/disappointmentRate.R
 b68580c208bab1913b90b6fb6251c183 *R/lossDistribution.R
-75453d3cd390f8d36ecd641c55a77028 *R/lossDistribution.mosg.R
+7e134b4b115ed287287b0ede861d2c85 *R/lossDistribution.mosg.R
 0dd65fa1b373e6b43a599144129e2215 *R/mean.mosg.lossdistribution.R
 83527aadedfb7d3d04c092d82875da40 *R/mgss.R
 2d574583b79eb29ea7e0e4b0c30a3f82 *R/moment.R
@@ -23,9 +24,12 @@ b9aa0b0c18ec5bdfa1fdab08ca4c3084 *R/quantile.mosg.lossdistribution.R
 9267480ad1075a8f4131554a2986d1cd *R/summary.mosg.equilibrium.R
 248b79104e199aebdf200d81af8163e2 *R/summary.mosg.lossdistribution.R
 445f89bfd4db5f4aa149aac4824e689d *R/variance.R
-960d84c7af58084bc9f213580b09eded *build/partial.rdb
+95ca38e96a4a50cda18274b02c616609 *build/partial.rdb
+532e3a2873565995103b2e8488e2972e *build/vignette.rds
 6c7cc1bdd40efd6e724f4e7fa87dd1b8 *inst/CITATION
-391a35c444fa198959a8828a2cc099ee *man/HyRiM-package.Rd
+26f10fd27f2ed09bad49d39c69ac6a17 *inst/doc/vignette.Rnw
+b748c9e0f54c6224f485c67f3ee41769 *inst/doc/vignette.pdf
+fa6594de6f4f8d9be39ed965dbcda202 *man/HyRiM-package.Rd
 cbdaa40b5812756f8c9916879e29dedd *man/cdf.Rd
 9738466b215b342bb86eac28efd957b8 *man/disappointmentRate.Rd
 79634fbafbd750942f22806a0c408f57 *man/lossDistribution.Rd
@@ -35,3 +39,5 @@ cbdaa40b5812756f8c9916879e29dedd *man/cdf.Rd
 27eae53e55c30686d282630f1c1dc2b6 *man/mosg.equilibrium.Rd
 f1f3be7a5e0944494b2ed3037bbf28e4 *man/preference.Rd
 8dfb32c88a7aea8d6cae5da0a6c7f9af *man/variance.Rd
+302c153725a789108da309256980f7d0 *vignettes/package-paper.pdf
+26f10fd27f2ed09bad49d39c69ac6a17 *vignettes/vignette.Rnw

@@ -31,7 +31,12 @@ S. Rass. On Game-Theoretic Risk Management (Part Two). Algorithms Algorithms to 
 Payoffs, ArXiv e-prints, arXiv:1511.08591, 2015.
 }
 %~~ Optionally other standard keywords, one per line, from file KEYWORDS in the R documentation directory ~~
-\keyword{ multi-objective game theory, stochastic games, risk management }
+\concept{multi-objective game theory}
+\concept{stochastic games}
+\concept{risk management}
+\concept{stochastic order}
+\concept{equilibrium}
+\concept{security strategy}
 %\seealso{
 %~~ Optional links to other man pages, e.g. ~~
 %~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~

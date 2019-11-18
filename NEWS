@@ -1,0 +1,6 @@
+# HyRiM version 1.0.3 (release date November 11 th, 2019)
+==============
+
+Changes:
+* November 11th, 2019: bugfix in "mosg.lossdistribution"
+* July 5th, 2019: added package vignette (extended documentation with many more detailed explanations, some hacks, etc.)

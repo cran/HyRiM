@@ -1,0 +1,7 @@
+\documentclass{article}
+\usepackage{pdfpages}
+%\VignetteIndexEntry{HyRiM: A Package for Multicriteria Game Theory over the Space of Probability Distributions}
+
+\begin{document}
+\includepdf[pages=-, fitpaper=true]{package-paper.pdf}
+\end{document}

@@ -8,6 +8,7 @@ function(G,
 #
 # Authors:         Sandra König, sandra.koenig@ait.ac.at 
 #                  Stefan Rass, stefan.rass@aau.at  
+# 				   Ali Alshawish, ali.alshawish@uni-passau.de
 #
 # Copyright (C) 2014-2017 AIT Austrian Institute of Technology
 # AIT Austrian Institute of Technology GmbH
@@ -101,6 +102,7 @@ function(G,
       }
       result$normalizationFactor <- 1 / result$normalizationFactor
     }
-    result$supp <- seq(from=result$range[1], to=result$range[2])
+    #result$supp <- seq(from=result$range[1], to=result$range[2])
+	result$supp <- result$range
     return(result)
   }
