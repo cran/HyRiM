@@ -1,6 +1,24 @@
-# HyRiM version 1.0.3 (release date November 11 th, 2019)
-==============
+Changes:
 
+# HyRiM version 1.1.0 (release date t.b.a.)
+=========================================================
+Changes:
+* replaced fictitious play by linear programming as the internal algorithm of mgss to now give exact solutions rather than only approximate ones
+* CHANGE: accuracy parameter eps now measuring the change in the losses rather than the change in the mixed strategies along fictitious play
+* added convenience access to game models by subsetting operators [,,] and [,,]<- as for matrices, vectors, etc.
+* added support for real-valued multi-criteria games that use lexicographically ordered payoffs
+* extended the function "disappointmentRate" to take matrix games over the reals and
+  compute the disappointment rate directly for them, or for a given equilibrium therein
+* added convenience function for extraction and replacement of parts of a game's payoff structure (in the usual R-syntax x[i,j,..] <- replacement, or x[i,j,k] for extraction)
+* added an option "cleanUp = FALSE" to plot.mosg to retain the SVG file for subsequent use elsewhere (e.g., in papers)
+
+# HyRiM version 1.0.4 (release date November 11 th, 2019)
+=========================================================
+Changes:
+* added parameter "largeGame" to plot.mosg, to allow plotting of games of arbitrary size without errors on figure margins being too small
+
+# HyRiM version 1.0.3 (release date November 11 th, 2019)
+=========================================================
 Changes:
 * November 11th, 2019: bugfix in "mosg.lossdistribution"
 * July 5th, 2019: added package vignette (extended documentation with many more detailed explanations, some hacks, etc.)

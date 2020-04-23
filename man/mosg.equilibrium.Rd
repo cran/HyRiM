@@ -54,7 +54,7 @@ The action spaces for both players are defined in first place by the game for wh
 \item{quantiles}{a 2x5-matrix of quantiles at the 10\%,25\%,50\%,75\% and 90\% level}
 \item{is.discrete}{a Boolean flag being \code{TRUE} if the loss distribution is over categories}
 
-\code{plot} displays a grid of plots, starting with the optimal defense behavior plotted as a discrete distribution on top of a (m x 2)-matrix of plots. Each line in this grid shows the discrete optimal attack strategy on the right side (as a bar plot), paired with the loss distribution (extracted from \code{x}) caused when the defender plays \code{optimalDefense} and the attacker plays the respective optimal attack strategy. 
+\code{plot} displays a grid of plots, starting with the optimal defense behavior plotted as a discrete distribution on top of a (m x 2)-matrix of plots. Each line in this grid shows the discrete optimal attack strategy on the right side (as a bar plot), paired with the loss distribution (extracted from \code{x}) caused when the defender plays \code{optimalDefense} and the attacker plays the respective optimal attack strategy.
 
 %%  ~Describe the value returned
 %%  If it is a LIST, use
@@ -75,7 +75,7 @@ Stefan Rass
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{print.mosg.equilibrium}}, \code{\link{mgss}}, \code{\link{mosg}}, \code{\link{lossDistribution}} 
+\code{\link{print.mosg.equilibrium}}, \code{\link{mgss}}, \code{\link{mosg}}, \code{\link{lossDistribution}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
@@ -83,8 +83,8 @@ library(compare)
 library(orthopolynom)
 ## raw data (PURELY ARTIFICIAL, for demo purposes only)
 # N=100 observations in each category
-obs111<-c(rep(1,40),rep(3,20),rep(5,10),rep(7,20),rep(9,10)); 
-obs112<-c(rep(1,50),rep(2,10),rep(4,10),rep(6,20),rep(8,10)); 
+obs111<-c(rep(1,40),rep(3,20),rep(5,10),rep(7,20),rep(9,10));
+obs112<-c(rep(1,50),rep(2,10),rep(4,10),rep(6,20),rep(8,10));
 obs121<-c(rep(1,20),rep(4,30),rep(6,20),rep(8,10),rep(10,20));
 obs122<-c(rep(1,40),rep(2.5,20),rep(5,20),rep(7.5,10),rep(9,10));
 obs211<-c(rep(1,30),rep(2,30),rep(5,10),rep(8,10),rep(10,20));
@@ -118,7 +118,7 @@ G <- mosg( n=2,
             goalDescriptions=c("g1", "g2", "g3"),
             defensesDescr = c("d1", "d2"),
             attacksDescr = c("a1", "a2"))
-eq <- mgss(G,T=1000,weights=c(0.25,0.5,0.25))
+eq <- mgss(G,weights=c(0.25,0.5,0.25))
 print(eq)
 summary(eq)
 plot(eq)

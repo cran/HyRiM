@@ -21,7 +21,7 @@ preference(x, y, verbose = FALSE, weights, points = 512)
   the i-th goal gets assigend the weight (priority) \code{weights[[i]]}. Defaults to all goals having equal priority if the parameter is missing (\code{weights = rep(1/length(x), length(x))}).
 }
   \item{verbose}{
-if set to \code{TRUE}, the function returns the preferred of its arguments directly (thus, giving back \code{x} or \code{y}. If set to \code{FALSE} (default), then it returns the argument index (1 = \code{x}, 2 = \code{y}) or 0 in case that \eqn{x=y}.
+if set to \code{TRUE}, the function returns the preferred of its arguments directly (thus, giving back \code{x} or \code{y}). If set to \code{FALSE} (default), then it returns the argument index (1 = \code{x}, 2 = \code{y}) or 0 in case that \eqn{x=y}.
 }
   \item{points}{
 the number of points at which the distributions are evaluated numerically to determine the preference.

@@ -1,49 +1,40 @@
+
 mgss <-
-function(G,
+  function(G,
            weights,
            cutOff,
            ord = 5,
-           eps,
-           T = 1000,
+           fbr = FALSE,
            points = 512) {
-## The all-in-one include header for the HyRiM R package
-#
-# Authors:         Sandra König, sandra.koenig@ait.ac.at 
-#                  Stefan Rass, stefan.rass@aau.at  
-#
-# Copyright (C) 2014-2017 AIT Austrian Institute of Technology
-# AIT Austrian Institute of Technology GmbH
-# Donau-City-Strasse 1 | 1220 Vienna | Austria
-# http://www.ait.ac.at
-#
-# This file is part of the AIT HyRiM R Package.
-# The AIT HyRiM R Package can be used for non-commercial and 
-# academic as well as evaluation purposes. For further information on 
-# commercial use, please contact the authors!
-# 
-# The AIT HyRiM R Package is free software: you can redistribute
-# it and/or modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation, either version 3 of
-# the License, or (at your option) any later version.
-#
-# The AIT HyRiM R Package is distributed in the hope that it will
-# be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-# of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with the AIT HyRiM R Package.
-# If not, see <http://www.gnu.org/licenses/>.
-#
-     if (!missing(eps)) {
-      if (eps < 0)
-        stop("invalid precision (eps > 0 required)")
-    }
-    if (!missing(T)) {
-      if (T < 0)
-        stop("invalid precision (iteration count > 0 required)")
-    }
-    
+    ## The all-in-one include header for the HyRiM R package
+    #
+    # Authors:         Sandra König, sandra.koenig@ait.ac.at
+    #                  Stefan Rass, stefan.rass@aau.at
+    #
+    # Copyright (C) 2014-2017 AIT Austrian Institute of Technology
+    # AIT Austrian Institute of Technology GmbH
+    # Donau-City-Strasse 1 | 1220 Vienna | Austria
+    # http://www.ait.ac.at
+    #
+    # This file is part of the AIT HyRiM R Package.
+    # The AIT HyRiM R Package can be used for non-commercial and
+    # academic as well as evaluation purposes. For further information on
+    # commercial use, please contact the authors!
+    #
+    # The AIT HyRiM R Package is free software: you can redistribute
+    # it and/or modify it under the terms of the GNU General Public License
+    # as published by the Free Software Foundation, either version 3 of
+    # the License, or (at your option) any later version.
+    #
+    # The AIT HyRiM R Package is distributed in the hope that it will
+    # be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+    # of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    # GNU General Public License for more details.
+    #
+    # You should have received a copy of the GNU General Public License
+    # along with the AIT HyRiM R Package.
+    # If not, see <http://www.gnu.org/licenses/>.
+    #
     d <- G$dim
     if (missing(cutOff)) {
       M <- G$maximumLoss
@@ -68,164 +59,30 @@ function(G,
       }
       w <- weights / sum(weights)
     }
-    
+
     #check for all distributions being not mixed
     if (any(unlist(lapply(G$losses, as.function(
       alist(x = , x$is.mixedDistribution)
     ))))) {
       stop("games constructed from mixed distributions are (currently) not supported")
     }
-    
+
     # if the game is over categorical distributions, verify that no empty bins are in there
     # note that can intentionally avoid the more elegant "for(ld in losses)" notation here, and instead
     # resort to the slower version invoking the loc-function for a more informative warning to the user indicating
     # *where* in the game the faulty loss distribution was found
     for (ld in G$losses) {
-    #for(k in G$dim) {
-    #  for(i in G$nDefenses) {
-    #    for(j in G$nAttacks) {
-    #      ld <- G$losses[[G$loc(goal = k, i = i, j = j)]]
-          if (any(ld$dpdf == 0)) {
-            #stop(cat("categorical distributions with empty categories are not allowed (found at (", i, ",", j, ") for goal ", k, ". Consider reorganizing the game by smoothing the loss distributions."))
-            stop(cat("categorical distributions with empty categories are not allowed. Consider reorganizing the game by smoothing the loss distributions."))
-          }
-    #    }
-    #  }
-    }
-    
-    if (!G$losses[[1]]$is.discrete) {
-      ###### compute Taylor approximations for loss distributions
-      hpoly <-
-        orthopolynom::hermite.h.polynomials(ord, normalized = FALSE)# Hermite polynomials needed to compute derivatives of normal kernel
-      # o-th derivative
-      derivdens <- function(z, obs, o, bw) {
-        N <- length(obs)
-        derivdensfactor <-
-          1 / (N * bw) / sqrt(2 * pi) * (-1 / (sqrt(2) * bw)) ^
-          o
-        derivdens <- 0
-        hpoly <- orthopolynom::hermite.h.polynomials(ord, normalized = FALSE)
-        # for efficiency, pull out factors that do not depend on i in the following summation
-        c1 <- -1 / (2 * bw ^ 2)
-        c2 <- 1 / (sqrt(2) * bw)
-        H <- as.function(hpoly[[o + 1]])
-        for (i in 1:N) {
-         derivdens <-   derivdens + exp(c1 * (z - obs[i]) ^ 2) * H((z - obs[i]) *
-                                                         c2)
-        }
-        derivdens <- derivdensfactor * derivdens
-        derivdens
-      }
-      #### transform densities to Taylor approximations (player p)
-      Ai <- list()
-      for (p in 1:d) {
-        Ai[[p]] <- list()
-        
-        for (i in 1:n) {
-          Ai[[p]][[i]] <- list()
-          for (j in 1:m) {
-            # one scenario (one specific choice of PS1 & PS2)
-            # compute index of function in the loss vector, i.e. losses[[k]][[1]] is density for scenario (i,j), losses[[k]][[2]] is its estimated bandwidth
-            k <-
-              G$loc(p, i, j)  # account for specification of loss matrix "by row" or "by column"
-            Ai[[p]][[i]][[j]] <-
-              c(rep(0, ord + 1)) # will contain derivatives up to order o
-            bw <- G$losses[[k]][[2]]
-            # adapt the normmalization factor to account for the truncation of the mass function at x=M
-            
-            # note that we need to be careful with the numeric integration here to let it cover only 
-            # the support of the distribution, but not an unnecessarily wide interval overlapping it
-            # (otherwise, the integral may incorrectly come back as 0, although the full mass would be 
-            # located inside the specified region). Hence, we adapt the lower and upper limits with the 
-            # support of the distribution, respectively.
-            supp <- G$losses[[k]]$range
-            leftLimit <- supp[1] - 5*G$losses[[k]]$bw
-            rightLimit <- supp[2] + 5*G$losses[[k]]$bw
-            truncationFactor <- integrate(G$losses[[k]]$lossdistr,
-                                          lower = max(1,leftLimit),
-                                          upper = min(M,rightLimit))$value
-            # account for the integration possibly returning a zero (in which case we end up with NaNs later)
-            if (truncationFactor < .Machine$double.eps) {
-              warning(
-                paste("numerical problem: loss distribution assigns approximately zero mass up to the cutoff point ", M, " (consider a different point to cut off or try eliminating dominated strategies)")
-              )
-            }
-            for (o in 1:(ord + 1)) {
-              if (truncationFactor < .Machine$double.eps) {
-                Ai[[p]][[i]][[j]][o] <- Inf
-              }
-              else {
-                
-               Ai[[p]][[i]][[j]][o] <-
-                  derivdens(M, G$losses[[k]]$obs, o - 1, bw) / truncationFactor # (o-1)-th derivative at M
-              }
-            }
-          }
-        }
-      }
-    } # end of preprocessing for continuous distributions
-    else {
-      # for discrete distributions, the preprocessing is much simpler
-      N <-
-        min(M, G$losses[[1]]$range[2])  # all distributions are assured to have the same support
-      # note that by this point, we have assured that all supports are equal
-      # (so that the shape of Ai is consistent)
-      Ai <- list()
-      for (p in 1:d) {
-        Ai[[p]] <- list()
-        for (i in 1:n) {
-          Ai[[p]][[i]] <- list()
-          for (j in 1:m) {
-            # one scenario (one specific choice of PS1 & PS2)
-            # compute index of function in the loss vector, i.e. losses[[k]][[1]] is density for scenario (i,j), losses[[k]][[2]] is its estimated bandwidth
-            k <-
-              G$loc(p, i, j)  # account for specification of loss matrix "by row" or "by column"
-            
-            # adapt the normmalization factor to account for the truncation of the mass function at x=M
-            truncationFactor <- 1 / sum(G$losses[[k]]$dpdf[1:N])
-            
-            
-            Ai[[p]][[i]][[j]] <-
-              rev(G$losses[[k]]$dpdf[1:N]) * truncationFactor
-          }
-        }
-      }
-      ord <-
-        N - 1  # take care for the code to assume the lists to have a length = ord + 1
-    } # end of preprocessing for discrete distributions
-    
-    
-    ### compare two densities g,h represented by their Taylor expansion and find min / max
-    mindens <- function(g, h) {
-      if (compare::compare(g, h)$result == TRUE) {
-        return(g) # if identical take any of them as min
-      }
-      else{
-        ord = length(g)
-        for (i in 1:(ord + 1)) {
-          if (g[i] < h[i])
-            return(g)
-          if (g[i] > h[i])
-            return(h)
-        }
+      if (any(ld$dpdf == 0)) {
+        stop(cat("categorical distributions with empty categories are not allowed. Consider reorganizing the game by smoothing the loss distributions."))
       }
     }
-    maxdens <-
-      function(g, h) {
-        ord = length(g)
-        if (compare::compare(g, h)$result == TRUE) {
-          return(g) # if identical take any of them as min
-        }
-        else{
-          for (i in 1:(ord + 1)) {
-            if (g[i] < h[i])
-              return(h)
-            if (g[i] > h[i])
-              return(g)
-          }
-        }
-      }
-    
+
+    if (G$losses[[1]]$is.discrete) {
+      N <- min(M, G$losses[[1]]$range[2])  # all distributions are assured to have the same support
+      ord <- N - 1
+    }
+    Ai <- .vectorize_lexcomparable(G,M,ord)
+
     #### construct auxiliary game
     # new loss matrix A for defender (averaged losses, single goal = weighted sum of all original goals)
     A <- list()
@@ -240,165 +97,124 @@ function(G,
         }
       }
     }
-    
-    # below, we are going to loop from 2:n, and 2:m respectively, but we need to prevent 
+
+    # below, we are going to loop from 2:n, and 2:m respectively, but we need to prevent
     # R from running a downward loop for degenerate games having either m = 1 or n = 1
     if (m > 1) { mRange <- 2:m } else { mRange <- NULL }
     if (n > 1) { nRange <- 2:n } else { nRange <- NULL }
-    
-    ####### find Nash equilibrium of aux. game -> use single-goal algo for FP (iterate part of opponent d times)
-    #### initialization
-    x <- rep(0, n)
-    y <- list()
-    for (p in 1:d) {
-      y[[p]] <- rep(0, m)
-      
-    }
-    
-    ##### first step for each player
-    ### defender
-    ## max density of each row
-    smax <-
-      rep(list(), n) # each density stored in a list (length ord+1)
-    for (i in 1:n) {
-      smax[[i]] <- A[[i]][[1]]
-      for (j in mRange) {
-        smax[[i]] <- maxdens(smax[[i]], A[[i]][[j]])
-      }
-    }
-    # min of row-minimas
-    vlow <- smax[[1]]
-    
-    for (i in nRange) {
-      vlow <- mindens(vlow, smax[[i]])
-    }
-    # position of min
-    vlowpos <- c(rep(FALSE, n))
-    for (i in 1:n) {
-      vlowpos[i] <- identical(smax[[i]], vlow)
-    }
-    row <- min(which(vlowpos))
-    U <- rep(list(), n)
-    
-    for (i in 1:n) {
-      U[[i]] <- A[[1]][[1]] # same format
-    }
-    for (i in 1:(ord + 1)) {
-      for (j in 1:n) {
-        U[[j]][[i]] <- 0
-      }
-    }
-    
-    ##### first step for each opponent ##############
-    ### p-th player
-    ## min density of each column
-    for (p in 1:d) {
-      smin <- Ai[[p]][[1]]
-      for (j in 1:m) {
 
-        for (i in nRange) {
-          smin[[j]] <- mindens(smin[[j]], Ai[[p]][[i]][[j]])
-        }
+
+    # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # compute security strategy by linear programming
+    # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    o <- ord+1
+    Ui <- purrr::map(1:o,   # loop over all coordinates (in variable k)
+                     function(k) {   # take out only the k-th coordinate to form a distinct game matrix
+                       matrix(sapply(
+                         unlist(A, recursive = FALSE), function(x) { x[k] }),   # extract the k-th coordinate
+                         nrow = n, ncol = m, byrow = TRUE)   # construct the payoff matrix; note that "A" is *always* filled by row in the code above
+                     })
+
+    # shift all values into the positive range to avoid errors with the linear optimization
+    delta <- abs(min(sapply(Ui, min))) + 1  # get the smallest value and
+    Ui <- lapply(Ui, "+", delta)
+
+    vopt <- rep(0, times=o)
+    n <- nrow(Ui[[1]])
+    m <- ncol(Ui[[1]])
+
+    f.con <- matrix(rep(1, times=(n+1)*(m+1)), nrow=m+1, ncol=n+1)
+    f.con[m+1, 1] <- 0
+    f.obj <- c(1, rep(0, times=n))
+    f.dir <- c(rep(">=", times = m), "==")
+    f.rhs <- c(rep(0, times=m), 1)
+
+    for(p in 1:o) {
+      f.con[1:m, 2:(n+1)] <- -t(Ui[[p]])
+      if (p > 1) {
+        # update the LP for the next game
+        A2 <- cbind(rep(0, times=m), t(Ui[[p-1]]))
+        f.con <- rbind(f.con, A2)
+        # objective remains the same ... no change to f.obj
+        f.dir <- c(f.dir, rep("<=", times = m))
+        f.rhs <- c(f.rhs, rep(vopt[p-1], times = m))
       }
-      # max of col-minimas
-      vup <- smin[[1]]
-      
-      for (j in mRange) {
-        vup <- maxdens(vup, smin[[j]])
+
+      result <- Rglpk::Rglpk_solve_LP(f.obj, f.con, f.dir, f.rhs, max = FALSE)
+      if (result$status != 0) {
+        stop("internal error: solver for linear program failed")
       }
-      # position of max
-      vuppos <- c(rep(FALSE, m))
-      for (j in 1:m) {
-        vuppos[j] <- identical(smin[[j]], vup)
-      }
-      col <-
-        min(which(vuppos)) # which density equals vup (i.e. where is result of compare TRUE for the first time?)
-      for (i in 1:n) {
-        U[[i]] <- U[[i]] + w[p] * Ai[[p]][[i]][[col]]
-      }
-      y[[p]][[col]] <- y[[p]][[col]] + 1
+      vopt[p] <- result$optimum
     }
-    #################################################
-    
-    ### initialization for opponents
-    V <- list()
-    for (p in 1:d) {
-      V[[p]] <- A[[1]]
-      for (j in 1:m) {
-        V[[p]][[j]] <- rep(0, (ord + 1))
+    optimalDefense <- as.matrix(result$solution[-1])   # this was the computed security strategy
+
+    # having found the security strategy for the defender,
+    # we compute the worst-case attacks as individually optimal relies (using LP again)
+    # NOTE that this is *not* a best reply to the actual defense of player 1, but rather the
+    # best that the attacker could achieve in engaging in its own zero-sum game with the defender
+    # as if it were the defender's *only* goal to protect itself against this adversary. Since
+    # in reality, the defender is caring for several goals at the same time, this worst-case attack is
+    # actually understood as the best that the attacker could achieve, given that the defender would
+    # focus all its efforts on protecting this particular goal. This is essentially different to a
+    # best reply to "optimalDefense" as computed above
+    optimalAttacks <- matrix(rep(0, times = m*d), nrow=m, ncol=d)
+    for (p in 1:d) {  # run over all goals (= opponents)
+
+      Ui <- purrr::map(1:o,   # loop over all coordinates (in variable k)
+                       function(k) {   # take out only the k-th coordinate to form a distinct game matrix
+                         t(  # transpose to switch roles of the players (for the LP only)
+                           matrix(sapply(
+                             unlist(Ai[[p]], recursive = FALSE), function(x) { x[k] }),   # extract the k-th coordinate
+                             nrow = n, ncol = m, byrow = TRUE)   # construct the payoff matrix; note that "A" is *always* filled by row in the code above
+                         )
+                       })
+      # shift all values into the positive range, since the LP solver implicitly
+      # assumes all variables to be >= 0 (and would otherwise report a failure on
+      # finding a feasible solution to start with)
+      delta <- abs(min(sapply(Ui, min))) + 1  # get the smallest value and shift accordingly
+      Ui <- lapply(Ui, "+", delta)
+
+      # reconstruct the LP like above, only swapping the variables n and m, and letting
+      # the adversary be a maximizer (thus reversing the inequalities in the constraints
+      # and the optimization goal)
+      f.con <- matrix(rep(1, times=(m+1)*(n+1)), nrow=n+1, ncol=m+1)
+      f.con[n+1, 1] <- 0
+      f.obj <- c(1, rep(0, times=m))
+      f.dir <- c(rep("<=", times = n), "==")
+      f.rhs <- c(rep(0, times=n), 1)
+
+      for(j in 1:o) {   # run over all coordinates for that opponent's game
+        f.con[1:n, 2:(m+1)] <- -t(Ui[[j]])
+        if (j > 1) {
+          # update the LP for the next game
+          A2 <- cbind(rep(0, times=n), t(Ui[[j-1]]))
+          f.con <- rbind(f.con, A2)
+          # objective remains the same ... no change to f.obj
+          f.dir <- c(f.dir, rep(">=", times = n))
+          f.rhs <- c(f.rhs, rep(vopt[j-1], times = n))
+        }
+
+        result <- Rglpk::Rglpk_solve_LP(f.obj, f.con, f.dir, f.rhs, max = TRUE)  # attacker maximizes
+        if (result$status != 0) {
+          stop("internal error: LP failed (for attacker)")
+        }
+        vopt[j] <- result$optimum
       }
+      optimalAttacks[,p] <- result$solution[-1]
     }
-    
-    ################### play game until time T
-    if (missing(eps)) {
-      eps <- -1
-    }
-    delta <- Inf
-    itnumb <- 0
-    while (delta > eps && itnumb < T) {
-      itnumb <- itnumb + 1
-      
-      # min of U
-      Umin <- U[[1]]
-      
-      for (i in nRange) {
-        Umin <- mindens(Umin, U[[i]])
-      }
-      # position of min
-      Uminpos <- c(rep(FALSE, n))
-      for (i in 1:n) {
-        Uminpos[i] <- compare::compare(U[[i]], Umin)$result
-      }
-      row <- min(which(Uminpos, TRUE))
-      Uminscal <- Umin / itnumb # rescale densities
-      vup <- maxdens(Uminscal, vup)
-      
-      xbefore <- x
-      x[row] <- x[row] + 1
-      delta <- max(abs(xbefore - x)) / itnumb
-      
-      ### optimize goal p 
-      for (p in 1:d) {
-        for (j in 1:m) {
-          V[[p]][[j]] <- V[[p]][[j]] + w[p] * Ai[[p]][[row]][[j]]
-        }
-        Vmax <- V[[p]][[1]]
-        
-        for (j in mRange) {
-          Vmax <- maxdens(Vmax, V[[p]][[j]])
-        }
-        # position of max
-        Vmaxpos <- c(rep(FALSE, m))
-        for (j in 1:m) {
-          Vmaxpos[j] <- compare::compare(V[[p]][[j]], Vmax)$result
-        }
-        col <- min(which(Vmaxpos, TRUE))
-        Vmaxscal <- Vmax / itnumb # rescale densities
-        vlow <- mindens(Vmaxscal, vlow)
-        for (i in 1:n) {
-          U[[i]] <- U[[i]] + w[p] * Ai[[p]][[i]][[col]]
-        }
-        y[[p]][[col]] <- y[[p]][[col]] + 1 # end optimization goal p
-      }
-      
-      
-    } # end iteration over itnumb
-    
+
     ## Compile result object *********************
-    
+
     ## estimated probabilities for defender (mixed strategies)
     ## compile equilibrium object for further use (with summary, print, etc.)
     equilibrium <- NULL
-    optimalDefense <- as.matrix(x / sum(x))
     colnames(optimalDefense) <- "prob."
     rownames(optimalDefense) <- G$defensesDescriptions
-    optimalAttacks <-
-      matrix(unlist(y) / (itnumb + 1), ncol = d, byrow = F)
     rownames(optimalAttacks) <- G$attacksDescriptions
     colnames(optimalAttacks) <- G$goalDescriptions
     equilibrium$optimalDefense <- optimalDefense
     equilibrium$optimalAttacks <- optimalAttacks
-    
+
     hybridRiskMetric <- list()
     assurance <- list()
     for (p in 1:d) {
@@ -412,7 +228,47 @@ function(G,
     }
     names(hybridRiskMetric) <- G$goalDescriptions
     equilibrium$assurances <- hybridRiskMetric
-    
+
+    #######################################
+    # skip this computation upon a flag with default value
+    # additionally, compute the individually best replies to the fixed "optimalDefense"
+    # this item is made available, but not printed explicitly
+    br <- NA
+    if (fbr) {
+      br <- rep(0, times=d)
+      zeroMassVector <- rep(0, length(Ai[[1]][[1]][[1]]))  # needed below (in both methods)
+
+      for (p in 1:d) {
+
+        # run over all rows
+        Vmax <- zeroMassVector
+        for (i in 1:n) {
+          # note that there is no weight w[p] needed in the sum here
+          # (as this player is interacting only with the defender)
+          Vmax <- Vmax + optimalDefense[i] * Ai[[p]][[i]][[1]]  # take column 1 as first maximum-candidate
+        }
+        col <- 1
+        for(j in mRange) { # run over all columns j=2,3,... for the p-th opponent (column j=1 was done in the loop above)
+          # given the so-far recorded behavior of the defender,
+          # determine the best attack (maximizing the loss)
+          colPayoff <- zeroMassVector
+          for (i in 1:n) { # run over all rows i
+            colPayoff <- colPayoff + optimalDefense[i] * Ai[[p]][[i]][[j]]
+          }
+          if (.lexgt(colPayoff, Vmax)) {
+            Vmax <- colPayoff # update the optimum
+            # store the location of the current optimum
+            # only if it *did change*
+            col <- j
+          }
+        }
+
+        br[p] <- col # store best reply for p-th opponent as index
+      }
+    }
+    equilibrium$br_to_optimalDefense <- br
+    #######################################
+
     class(equilibrium) <- "mosg.equilibrium"
     equilibrium
   }

@@ -60,7 +60,7 @@ function(dat,
         # the input data is a probability mass function; so directly take its values to the output
         if (is.null(supp)) {
           # default if no support is supplied externally
-          dens$supp <- 1:length(dat)
+          dens$supp <- c(1, length(dat))
         }
         else {
           dens$supp <- supp
@@ -72,7 +72,7 @@ function(dat,
           warning("renormalizing probability mass function")
           dat <- dat / sum(dat)
         }
-        dens$range <- c(1, max(supp))
+        dens$range <- c(1, max(dens$supp))
         dens$dpdf <- rep(x = 0, dens$range[2])
         dens$dpdf[1:length(dat)] <- dat
       }
@@ -80,7 +80,7 @@ function(dat,
         # the input data is a cumulative distribution function; so derive its mass function
         if (is.null(supp)) {
           # default if no support is supplied externally
-          dens$supp <- 1:length(dat)
+          dens$supp <- c(1, length(dat))
         }
         else {
           dens$supp <- supp
@@ -95,7 +95,7 @@ function(dat,
           warning("renormalizing cumulative distribution function")
           dat <- dat / max(dat)
         }
-        dens$range <- c(1, max(supp))
+        dens$range <- c(1, max(dens$supp))
         dens$dpdf <- rep(x = 0, dens$range[2])
         dens$dpdf[1:length(dat)] <- c(dat[1], diff(dat))
       }

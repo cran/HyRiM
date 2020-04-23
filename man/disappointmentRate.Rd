@@ -2,24 +2,30 @@
 \alias{disappointmentRate}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-computation of the disappointment rate 
+computation of the disappointment rate
 }
 \description{
 For a minimizing player, the \emph{disappointment rate} is the likelihood for the loss to exceed its expectation (thus disappoint the defender). For any random loss \eqn{X}, it is given by \eqn{Pr(X > E(X))}.
 }
 \usage{
-disappointmentRate(d)
+disappointmentRate(d, x, y, verbose = TRUE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{d}{
-a \link{lossDistribution} object; typically the assurance from a previously computed equilibrium (see \code{\link{mgss}})
+a \link{lossDistribution} object or a \link{matrix}; typically the assurance from a previously computed equilibrium (see \code{\link{mgss}}). In that case, all other parameters are ignored.
+
+Alternatively, one can provide a matrix of real values instead, to compute the disappointment rate in the so-specified zero-sum matrix game. In that case, the other parameters are also taken into considertion.
+}
+\item{x,y}{the mixed strategies under which the disappointment rate shall be computed. Usually, this would be an equilibrium of the (real-valued) matrix game. If only \code{x} or only \code{y} is supplied, the function computes a best response to the given (mixed) strategy. If both are omitted, the function internally computes an equilibrium by a call to \code{\link{mgss}}.
+}
+\item{verbose}{if set to \code{FALSE}, suppresses all messaging.
+}
+\item{...}{further parameters internally passed onwards to \code{\link{mgss}} to compute an equilibrium.
 }
 }
 \details{
 The disappointment rate can be taken as an auxiliary goal to optimize, though it is not supported for optimization in the current version of the package. Note that it does not make sense to consider this rate as an isolated (single) goal, since the optimal strategy would then be playing towards maximal losses (with explicit aid of the opponent) in order to minimize the mass to the left of the expected loss. However, it is a quantity of interest when the equilibrium has been computed, as it indicates how ``satisfying'' the equilibrium will be upon playing.
-
-See the literature for further 
 }
 \value{
 the likelihood to overshoot the expectation of the random loss \eqn{X} with distribution \code{d}, i.e., \eqn{Pr(X > E(X))}.
@@ -50,8 +56,8 @@ library(compare)
 library(orthopolynom)
 ## raw data (PURELY ARTIFICIAL, for demo purposes only)
 # N=100 observations in each category
-obs111<-c(rep(1,40),rep(3,20),rep(5,10),rep(7,20),rep(9,10)); 
-obs112<-c(rep(1,50),rep(2,10),rep(4,10),rep(6,20),rep(8,10)); 
+obs111<-c(rep(1,40),rep(3,20),rep(5,10),rep(7,20),rep(9,10));
+obs112<-c(rep(1,50),rep(2,10),rep(4,10),rep(6,20),rep(8,10));
 obs121<-c(rep(1,20),rep(4,30),rep(6,20),rep(8,10),rep(10,20));
 obs122<-c(rep(1,40),rep(2.5,20),rep(5,20),rep(7.5,10),rep(9,10));
 obs211<-c(rep(1,30),rep(2,30),rep(5,10),rep(8,10),rep(10,20));
@@ -85,10 +91,31 @@ G <- mosg( n=2,
             goalDescriptions=c("g1", "g2", "g3"),
             defensesDescr = c("d1", "d2"),
             attacksDescr = c("a1", "a2"))
-eq <- mgss(G,T=1000,weights=c(0.25,0.5,0.25))
+eq <- mgss(G,weights=c(0.25,0.5,0.25))
 
 # get the disappointment rate for the first security goal g1
 disappointmentRate(eq$assurances$g1)
+
+############
+# construct a game with one goal and related disappointment
+payoffs <- list(f111,f112,f121,f122)
+# note that from here onwards, the code is "generic", meaning that
+# exactly the same procedure would apply to *any* kind of game that
+# we want to play with disappointments, as long as the input data comes
+# in the variable "payoffs" (as used in the code below)
+expectations <- unlist(lapply(payoffs, mean))
+disappointmentRates <- unlist(lapply(payoffs, disappointmentRate))
+# put the two goals together in a game
+gameWithDisappointment <- c(expectations, disappointmentRates)
+G <- mosg( n=2,
+          m=2,
+          losses=gameWithDisappointment,
+          goals=2,
+          goalDescriptions=c("revenue", "disappointment"),
+          defensesDescr = c("d1", "d2"),
+          attacksDescr = c("a1", "a2"))
+eq <- mgss(G,weights=c(0.1,0.9))
+
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

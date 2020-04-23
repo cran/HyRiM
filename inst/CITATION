@@ -4,7 +4,8 @@ note <- sprintf("R package version %s", meta$Version)
 bibentry(bibtype = "Manual",
          title = "{HyRiM}: Multicriteria Risk Management using Zero-Sum Games with vector-valued payoffs that are probability distributions",
          author = c(person("Stefan", "Rass"),
-                    person("Sandra", "K\"onig")),
+                    person("Sandra", "K\"onig"),
+					person("Ali", "Alshawish")),
          year = year,
          note = note,
-         url = "https://hyrim.net/software/")
+         url = "https://cran.r-project.org/package=HyRiM")

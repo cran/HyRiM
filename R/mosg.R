@@ -36,7 +36,7 @@ function(n,
 # along with the AIT HyRiM R Package.
 # If not, see <http://www.gnu.org/licenses/>.
 #
-     mosg <- NULL
+    mosg <- NULL
     if (missing(n) || missing(m) || missing(goals)) {
       stop("shape of the game (n,m,goals) is not completely specified")
     }
@@ -56,6 +56,7 @@ function(n,
       }
     }
 
+    ##############################################################
     # check for the special case of the game being constructed over real values only
     if (all(unlist(lapply(losses, function(x) { is.numeric(x) && length(x)==1L })))) {
       losses <- unlist(losses)
@@ -72,6 +73,42 @@ function(n,
                          bw = 1,
                          supp=c(1,2))
       })
+    }
+
+    ##############################################################
+    # check for the special case of the game to use loss vectors (instead of distributions),
+    # in which case we prepare it as played over a lexicographic ordering
+    if (all(unlist(lapply(losses, function(x) { is.numeric(x) && length(x) > 1L })))) {
+      lossDim <- sapply(losses, FUN=length)
+      if (min(lossDim) != max(lossDim)) {
+        stop("loss vectors must all have the same length!")
+      }
+      # we don't need the full list of dimensions, so abandon it and
+      # replace by the value we are interested in
+      lossDim <- max(lossDim)
+      # do the shift-and-scale towards the positive dimension
+      shift <- 1 + abs(min(unlist(losses), 0))
+      # let a 10% residual gap, taking the maximum over all 1-norms of shifted vectors
+      # note that since we scale and shift all vectors by the same amount and
+      # magnitude, the game is left strategically equivalent (i.e.,
+      # all equilibria are retained)
+      scale <- 0.9 / max(sapply(losses, function(x) { sum(x + shift) }))
+
+      # scale and shift the loss vectors accordingly
+      # embed each loss vector into its own loss distribution
+      losses <- lapply(losses,
+                       function(x) {
+                         # shift and scale all by the same amount
+                         mf <- rev(scale * (x + shift))
+                         Lpdf <- c(1 - sum(mf), mf)
+                         return(lossDistribution(dat = Lpdf,
+                                                 discrete = TRUE,
+                                                 dataType = "pdf",
+                                                 supp = c(1,lossDim + 1),
+                                                 smoothing = "none"))
+                       }
+      )
+      # from that point onwards, everything else proceeds "as usual"
     }
 
     mosg$losses <- losses
@@ -111,11 +148,6 @@ function(n,
     }
 
     # check if the list of payoff distributions has elements of the proper type
-    #for(ld in losses) {
-    #  if (class(ld) != "mosg.lossdistribution") {
-    #    stop("improper elements in list of losses found (must all be of class 'mosg.lossdistribution'")
-    #  }
-    #}
     if (!all(unlist(lapply(losses, "class"))=="mosg.lossdistribution")) {
       stop("improper elements in list of losses found (must all be of class 'mosg.lossdistribution')")
     }

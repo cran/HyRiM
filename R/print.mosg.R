@@ -2,8 +2,8 @@ print.mosg <-
 function(x, ...) {
 ## The all-in-one include header for the HyRiM R package
 #
-# Authors:         Sandra König, sandra.koenig@ait.ac.at 
-#                  Stefan Rass, stefan.rass@aau.at  
+# Authors:         Sandra König, sandra.koenig@ait.ac.at
+#                  Stefan Rass, stefan.rass@aau.at
 #
 # Copyright (C) 2014-2017 AIT Austrian Institute of Technology
 # AIT Austrian Institute of Technology GmbH
@@ -11,10 +11,10 @@ function(x, ...) {
 # http://www.ait.ac.at
 #
 # This file is part of the AIT HyRiM R Package.
-# The AIT HyRiM R Package can be used for non-commercial and 
-# academic as well as evaluation purposes. For further information on 
+# The AIT HyRiM R Package can be used for non-commercial and
+# academic as well as evaluation purposes. For further information on
 # commercial use, please contact the authors!
-# 
+#
 # The AIT HyRiM R Package is free software: you can redistribute
 # it and/or modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation, either version 3 of

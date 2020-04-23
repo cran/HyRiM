@@ -12,28 +12,28 @@
 construction and handling of loss distributions
 }
 \description{
-Loss distributions can be constructed from both, continuous and categorical data. In any case, the input data must be a list (vector) of at least two numeric values all being \eqn{\geq 1}. For discrete data, the function additionally takes the full range of categories, all being represented as integers (with the lowest category having the number 1). 
+Loss distributions can be constructed from both, continuous and categorical data. In any case, the input data must be a list (vector) of at least two numeric values all being \eqn{\geq 1}. For discrete data, the function additionally takes the full range of categories, all being represented as integers (with the lowest category having the number 1).
 }
 \usage{
 # construct a loss distribution from data
 lossDistribution(
-  dat, 
-  discrete = FALSE, 
+  dat,
+  discrete = FALSE,
   dataType = c("raw", "pdf", "cdf"),
-  supp = NULL, 
-  smoothing = c("none", "ongaps", "always"), 
+  supp = NULL,
+  smoothing = c("none", "ongaps", "always"),
   bw = NULL)
 # get information about the loss distribution
-\method{print}{mosg.lossdistribution}(x, ...) 
+\method{print}{mosg.lossdistribution}(x, ...)
 \method{summary}{mosg.lossdistribution}(object, ...)
 \method{print}{summary.mosg.lossdistribution}(x, ...)
 \method{plot}{mosg.lossdistribution}(x, points = 100, xlab = "", ylab = "",
-           main = "", p = 0.999, newPlot = TRUE, cutoff = NULL, ...)  
-# get quantiative information about the distribution 
+           main = "", p = 0.999, newPlot = TRUE, cutoff = NULL, ...)
+# get quantiative information about the distribution
 \method{quantile}{mosg.lossdistribution}(x, p, eps = 0.001, ...)
 \method{mean}{mosg.lossdistribution}(x, ...)
 # evaluate the loss density function
-\method{density}{mosg.lossdistribution}(x, t, ...)  
+\method{density}{mosg.lossdistribution}(x, t, ...)
 # for the cumulative distribution function, see the function 'cdf'
 }
 %- maybe also 'usage' for other objects documented here.
@@ -45,10 +45,10 @@ a vector of at least two input observations (all \eqn{\geq 1} required)
 defaults to \code{FALSE}. If set to \code{TRUE}, the loss distribution is constructed as discrete. In that case, a value for \code{supp} is required.
 }
 \item{dataType}{
-applies only if \code{discrete=TRUE}, and specifies how the values in \code{dat} are to be interpreted. Defaults to \code{raw}, by which the data is taken as observations. Given as \code{pdf}, the values in \code{dat} are directly interpreted as a probability density (checked for nonnegativity and re-normalized if necessary). If the data type is specified as \code{cdf}, then the values in \code{dat} are taken as cumulative distribution function, i.e., checked to be non-decreasing, non-negative and re-normalized to 1 if necessary. 
+applies only if \code{discrete=TRUE}, and specifies how the values in \code{dat} are to be interpreted. Defaults to \code{raw}, by which the data is taken as observations. Given as \code{pdf}, the values in \code{dat} are directly interpreted as a probability density (checked for nonnegativity and re-normalized if necessary). If the data type is specified as \code{cdf}, then the values in \code{dat} are taken as cumulative distribution function, i.e., checked to be non-decreasing, non-negative and re-normalized to 1 if necessary.
 }
   \item{supp}{
-if the parameter \code{discrete} is set to \code{TRUE}, then this parameter must be set as a vector of two elements, specifying the minimal and maximal category, e.g. \code{supp=c(1,5)}. 
+if the parameter \code{discrete} is set to \code{TRUE}, then this parameter must be set as a vector of two elements, specifying the minimal and maximal category, e.g. \code{supp=c(1,5)}.
 }
 \item{bw}{
 the bandwidth parameter (numeric value) for kernel smoothing. Defaults internally to the result of \link{bw.nrd0} if omitted.
@@ -86,7 +86,7 @@ For discrete distributions, missing observations are handled by smoothing the de
 
 Degenerate distributions are not supported! The construction of classical games with real-valued payoffs works directly through \link{mosg} by supplying a list of values rather than loss distributions. See the example given with \link{mosg}.
 
-The generic functions \code{quantile}, \code{mean} and \code{density} both distinguish discrete from continuous distributions in the way of how values are being computed. 
+The generic functions \code{quantile}, \code{mean} and \code{density} both distinguish discrete from continuous distributions in the way of how values are being computed.
 
 Quantiles are computed using the direct definition as an approximation \code{y} so that x = Pr(ld <= y). For continuous distributions, a bisective search is performed to approximate the inverse cumulative distribution function. For discret distributions, \code{quantile} works with cumulative sums. The accuracy parameter \code{eps} passed to \code{quantile} causes the bisective search to stop if the search interval has a length less than \code{eps}. In that case, the middle of the interval is returned. For discrete distributions, the computation is done by cumulative sums on the discrete probability mass function.
 
@@ -94,7 +94,7 @@ Quantiles are computed using the direct definition as an approximation \code{y} 
 
 \code{density} is either a wrapper for the internal representation by the \code{function} object \code{lossdistr}, or directly accesses the probability mass function as internally stored in the field \code{dpdf} (see the 'values' section below).
 
-For visualization, \code{plot} produces a bar plot for categorical distributions (over categories as specified by the \code{supp} field; see the 'values' section below), and for  continous distributions, a continuous line plot is returned on the range 1...max(\code{range} + 5*\code{bw}), where the values are described below. To ease comparison and a visual inspection of the game matrix, the default plot ranges can be overridden by supplying \code{xlim} and \code{ylim} for the plot function. 
+For visualization, \code{plot} produces a bar plot for categorical distributions (over categories as specified by the \code{supp} field; see the 'values' section below), and for  continous distributions, a continuous line plot is returned on the range 1...max(\code{range} + 5*\code{bw}), where the values are described below. To ease comparison and a visual inspection of the game matrix, the default plot ranges can be overridden by supplying \code{xlim} and \code{ylim} for the plot function.
 }
 \value{
 The return values of \code{lossDistribution} is an object of class \code{mosg.lossdistribution}. The same goes for \code{lossDistribution.mosg}.
@@ -137,10 +137,23 @@ Stefan Rass
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
+# construct a loss distribution from observations (raw data)
 cvss1base <- c(10,6.4,9,7.9,7.1,9)
 ld <- lossDistribution(cvss1base)
 summary(ld)
 plot(ld)
+
+# construct a loss distribution of given shape
+# for example, a Poisson density with lambda = 4
+x <- 1:10
+f <- dpois(x, lambda = 4)
+# construct the loss distribution by declaring the data
+# to be a probability density function (pdf)
+ld <- lossDistribution(f, dataType = "pdf", discrete = TRUE, supp = range(x))
+# note that this call throws a warning since it internally
+# truncates the loss distribution to the support 1:10, and
+# renormalizes the supplied density for that matter.
+
 # for further examples, see the documentation to 'mosg' and 'mosg.equilibrium'
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
