@@ -1,24 +1,45 @@
-Changes:
+Package history:
+================
 
-# HyRiM version 1.1.0 (release date t.b.a.)
-=========================================================
-Changes:
-* replaced fictitious play by linear programming as the internal algorithm of mgss to now give exact solutions rather than only approximate ones
-* CHANGE: accuracy parameter eps now measuring the change in the losses rather than the change in the mixed strategies along fictitious play
-* added convenience access to game models by subsetting operators [,,] and [,,]<- as for matrices, vectors, etc.
-* added support for real-valued multi-criteria games that use lexicographically ordered payoffs
-* extended the function "disappointmentRate" to take matrix games over the reals and
+09.06.2021 (version 2.0.1) 
+* BUGFIX: added tolerance parameter "tol" to function mgss, to account for roundoff errors behind the 5th digit after the comma when solving the linear programs
+05.05.2021
+* BUGFIX: in some cases, numeric roundoff errors encountered internally in the constraints of the LPs made the linear
+  programs infeasible. Added an optional tolerance parameter "tol", defaulting to zero for exact solutions, but usable
+  to fix the roundoff errors if needed.
+09.04.2020 
+* CHANGE: replaced fictitious play to compute approximate security strategies by an exact algorithm using linear programming. This will be version 2.0.0 of the package, 
+pending for release over CRAN. It is no longer downwards compatible regarding the function <code>mgss</code> to code using version 1.x.x. Thanks to Ali Alshawish and Vincent Bürgin for reporting the 
+convergence issues with fictitious play that led to this change.
+* FEATURE: added support for real-valued multi-criteria games that use lexicographically ordered payoffs
+* FEATURE: extended the function "disappointmentRate" to take matrix games over the reals and
   compute the disappointment rate directly for them, or for a given equilibrium therein
-* added convenience function for extraction and replacement of parts of a game's payoff structure (in the usual R-syntax x[i,j,..] <- replacement, or x[i,j,k] for extraction)
-* added an option "cleanUp = FALSE" to plot.mosg to retain the SVG file for subsequent use elsewhere (e.g., in papers)
+* FEATURE: added convenience function for extraction and replacement of parts of a game's payoff structure (in the usual R-syntax x[i,j,..] <- replacement, or x[i,j,k] for extraction)
+* FEATURE: added an option "cleanUp = FALSE" to plot.mosg to retain the SVG file for subsequent use elsewhere (e.g., in papers)
+11.11.2019:
+* BUGFIX: error in "moment" function; thankfully submitted (with correction) by Ali Alshawish
+18.07.2019:
+* FEATURE: added vignette paper (displayable via 'RShowDoc("vignette", type="pdf", package="HyRiM")')
+04.09.2018:
+* BUGFIX: function "mosg" incorrectly handled the parameter setting "byrow = FALSE"
+* BUGFIX: "moment" was on categorical distributions incorrectly using "range" rather than "supp" 
+26.07.2018:
+* BUGFIX: games with numeric payoffs fail if one of the payoffs is an integer power of 10 (so that the internal distributions become degenerate in this case)
+24.07.2018
+* BUGFIX: preference function incorrectly ignored all but the last goal
+18.04.2018
+* FEATURE: added "disappointment rate" function
+23.02.2018
+* BUGFIX: preference function returned wrong results for relations between numbers and distributions
+16.01.2018
+* BUGFIX: preference among discrete distributions with different ranges but equal support was occasionally computed incorrectly
+28.08.2017
+* FEATURE: plot.mosg now takes arguments xlim and ylim to make all plots comparable by identical axes ranges
+* BUGFIX: improvement to the implementation of density (now returns zero only for categories as they are specified; nothing more)
+* BUGFIX: print.mosg did not list the goals by name (now does)
+25.08.2017
+* BUGFIX: density, when applied to continuous distributions, returned zero for vector arguments in some occasions
+10.07.2017
+* BUGFIX: "range" now properly updated after smoothing a density (previously, the range was set based on the data, but not updated after smoothing, which caused errors when moments were computed (visible by warning messages))
+* FEATURE: if loss distributions with empty categories are supplied, the error now tells where the problem occurred in the game (row, column and goal) 
 
-# HyRiM version 1.0.4 (release date November 11 th, 2019)
-=========================================================
-Changes:
-* added parameter "largeGame" to plot.mosg, to allow plotting of games of arbitrary size without errors on figure margins being too small
-
-# HyRiM version 1.0.3 (release date November 11 th, 2019)
-=========================================================
-Changes:
-* November 11th, 2019: bugfix in "mosg.lossdistribution"
-* July 5th, 2019: added package vignette (extended documentation with many more detailed explanations, some hacks, etc.)

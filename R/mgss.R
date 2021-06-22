@@ -5,15 +5,16 @@ mgss <-
            cutOff,
            ord = 5,
            fbr = FALSE,
-           points = 512) {
+           points = 512,
+           tol = 0.0) {
     ## The all-in-one include header for the HyRiM R package
     #
     # Authors:         Sandra König, sandra.koenig@ait.ac.at
     #                  Stefan Rass, stefan.rass@aau.at
     #
-    # Copyright (C) 2014-2017 AIT Austrian Institute of Technology
+    # Copyright (C) 2014-2020 AIT Austrian Institute of Technology
     # AIT Austrian Institute of Technology GmbH
-    # Donau-City-Strasse 1 | 1220 Vienna | Austria
+    # Giefinggasse 4 | 1210 Vienna | Austria
     # http://www.ait.ac.at
     #
     # This file is part of the AIT HyRiM R Package.
@@ -108,6 +109,7 @@ mgss <-
     # compute security strategy by linear programming
     # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     o <- ord+1
+    # re-arrange the flattened list of payoffs into a list of matrices per coordinate for a lexicographic optimization
     Ui <- purrr::map(1:o,   # loop over all coordinates (in variable k)
                      function(k) {   # take out only the k-th coordinate to form a distinct game matrix
                        matrix(sapply(
@@ -137,12 +139,16 @@ mgss <-
         f.con <- rbind(f.con, A2)
         # objective remains the same ... no change to f.obj
         f.dir <- c(f.dir, rep("<=", times = m))
-        f.rhs <- c(f.rhs, rep(vopt[p-1], times = m))
+        #f.rhs <- c(f.rhs, rep(vopt[p-1], times = m))
+        f.rhs <- c(f.rhs, rep(vopt[p-1] + tol, times = m))
       }
 
-      result <- Rglpk::Rglpk_solve_LP(f.obj, f.con, f.dir, f.rhs, max = FALSE)
-      if (result$status != 0) {
-        stop("internal error: solver for linear program failed")
+      result <- Rglpk::Rglpk_solve_LP(f.obj, f.con, f.dir, f.rhs, max = FALSE,
+                                      control = list("canonicalize_status" = FALSE))
+      if (result$status != 5) {
+        stop(paste("internal error: solver for linear program failed with GLPK status",
+                   result$status,
+                   ". Perhaps re-try with a tolerance (e.g., tol=1.0e-5)!?"))
       }
       vopt[p] <- result$optimum
     }
@@ -157,9 +163,10 @@ mgss <-
     # actually understood as the best that the attacker could achieve, given that the defender would
     # focus all its efforts on protecting this particular goal. This is essentially different to a
     # best reply to "optimalDefense" as computed above
+
     optimalAttacks <- matrix(rep(0, times = m*d), nrow=m, ncol=d)
     for (p in 1:d) {  # run over all goals (= opponents)
-
+      # like for the defender, re-arrange the flattened list of payoffs into a list of matrices per coordinate
       Ui <- purrr::map(1:o,   # loop over all coordinates (in variable k)
                        function(k) {   # take out only the k-th coordinate to form a distinct game matrix
                          t(  # transpose to switch roles of the players (for the LP only)
@@ -191,12 +198,17 @@ mgss <-
           f.con <- rbind(f.con, A2)
           # objective remains the same ... no change to f.obj
           f.dir <- c(f.dir, rep(">=", times = n))
-          f.rhs <- c(f.rhs, rep(vopt[j-1], times = n))
+          f.rhs <- c(f.rhs, rep(vopt[j-1] - tol, times = n))
         }
 
-        result <- Rglpk::Rglpk_solve_LP(f.obj, f.con, f.dir, f.rhs, max = TRUE)  # attacker maximizes
-        if (result$status != 0) {
-          stop("internal error: LP failed (for attacker)")
+        result <- Rglpk::Rglpk_solve_LP(f.obj, f.con, f.dir, f.rhs, max = TRUE,
+                                        control = list("canonicalize_status" = FALSE))  # attacker maximizes
+        if (result$status != 5) {  # status 5 = optimal solution
+          # occasionally, the failure was due to numeric roundoff errors below the 6th digit after
+          # the comma, so we re-try with a bit of a tolerance subtracted (=> worked in all test cases)
+          stop(paste("internal error: LP failed (for attacker); GLPK status was",
+                     result$status,
+                     ". Perhaps re-try with a tolerance (e.g., tol=1.0e-5)!?"))
         }
         vopt[j] <- result$optimum
       }

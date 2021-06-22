@@ -5,9 +5,9 @@ function(ld, x) {
 # Authors:         Sandra König, sandra.koenig@ait.ac.at 
 #                  Stefan Rass, stefan.rass@aau.at  
 #
-# Copyright (C) 2014-2017 AIT Austrian Institute of Technology
+# Copyright (C) 2014-2020 AIT Austrian Institute of Technology
 # AIT Austrian Institute of Technology GmbH
-# Donau-City-Strasse 1 | 1220 Vienna | Austria
+# Giefinggasse 4 | 1210 Vienna | Austria
 # http://www.ait.ac.at
 #
 # This file is part of the AIT HyRiM R Package.

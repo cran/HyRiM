@@ -7,7 +7,7 @@ compute a multi-goal security strategy}
 Finds security strategy that assures a maximal loss w.r.t. all goals of the given game, delivering a Pareto-efficient loss bound. Internally, it constructs an auxiliary one-against-all game and uses a sequence of linear programs to compute a Pareto-Nash equilibrium therein (Rass, 2013), using the methods described by (Lozovanu et al 2005; Rass 2015).
 }
 \usage{
-mgss(G, weights, cutOff, ord = 5, fbr = FALSE, points = 512)
+mgss(G, weights, cutOff, ord = 5, fbr = FALSE, points = 512, tol = 0.0)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -28,6 +28,9 @@ if set to \code{TRUE}, instruct the function to additionally compute the  best r
 }
   \item{points}{
 the number of points at which the resulting equilibrium loss distributions are evaluated numerically.
+}
+\item{tol}{
+occasionally, it was observed that the internal linear programs failed due to roundoff errors; in these cases, the function reported an "internal error" on the LP failure. In that case, one can supply a tolerance to go into the optimization to avoid such roundoff problems. By default, the tolerance is set to zero, to search for an "exact" solution, though. The GLPK status given in the error message refers to the codes for the GNU Linear Programming Kit, given at \url{https://rdrr.io/cran/glpkAPI/man/glpkConstants.html}.
 }
 }
 \details{
