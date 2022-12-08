@@ -52,8 +52,6 @@ Stefan Rass
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-library(compare)
-library(orthopolynom)
 ## raw data (PURELY ARTIFICIAL, for demo purposes only)
 # N=100 observations in each category
 obs111<-c(rep(1,40),rep(3,20),rep(5,10),rep(7,20),rep(9,10));

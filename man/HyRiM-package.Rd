@@ -21,6 +21,12 @@
 Maintainer: \packageMaintainer{HyRiM}
 }
 \references{
+S. Rass, S. König, S. Schauer: Games over Probability Distributions Revisited: New Equilibrium Models and Refinements, MDPI Games 2022, 13(6), 80; DOI: https://doi.org/10.3390/g13060080, online: https://www.mdpi.com/2073-4336/13/6/80
+
+S. Rass, S. König, S. Schauer, V. Bürgin, J. Epperlein, F. Wirth: On Game Theory Using Stochastic Tail Orders, arXiv:2108.00680v1 [math.PR], 2021
+
+S. Rass, A. Wiegele, S. König: Security Games over Lexicographic Orders, in: Decision and Game Theory for Security, 11th International Conference, GameSec 2020, College Park, MD, USA, October 28–30, 2020, Proceedings, Springer LNCS 12513, ISBN 978-3-030-64792-6
+
 S. Rass, S. Koenig, S. Schauer: Uncertainty in Games: Using Probability-Distributions as Payoffs. in MHR Khouzani et al. (Eds.) GameSec 2015, Springer LNCS 9406, pp. 346-357, DOI: 10.1007/978-3-319-25594-1_20.
 
 S. Rass. On Game-Theoretic Risk Management (Part One). Towards a Theory of

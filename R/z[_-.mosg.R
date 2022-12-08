@@ -5,7 +5,8 @@ function(x,i,j,k=NULL,value) {
   goals <- 1:x$dim
   if (!missing(i)) {
     # take care of subsetting "by name"
-    if (class(i) == "character") {
+    #if (class(i) == "character") {
+    if (is(i, "character")) {
       i <- match(i, x$defensesDescr)
       if (anyNA(i)) {
         stop("unknown defense strategy")
@@ -17,7 +18,8 @@ function(x,i,j,k=NULL,value) {
     }
   }
   if (!missing(j)) {
-    if (class(j) == "character") {
+    #if (class(j) == "character") {
+    if (is(j, "character")) {
       j <- match(j, x$attacksDescr)
       if (anyNA(j)) {
         stop("unknown attack strategy")
@@ -29,7 +31,8 @@ function(x,i,j,k=NULL,value) {
     }
   }
   if (!is.null(k)) {
-    if (class(k) == "character") {
+    #if (class(k) == "character") {
+    if (is(k, "character")) {
       k <- match(k, x$goalDescriptions)
       if (anyNA(i)) {
         stop("unknown goal(s)")
@@ -45,7 +48,8 @@ function(x,i,j,k=NULL,value) {
   # column; this piece of information is not carried over with x, but is easy
   # to find out from a test call to the "loc" function
   byrow = (x$loc(1, 1, 1) + 1 == x$loc(1,1,2))
-  if (class(value) == "mosg") {
+  #if (class(value) == "mosg") {
+  if (is(value, "mosg")) {
     # if we substitute using another game object,
     # check if its payoff list is organized as that of x
     if ((value$loc(1,1,1) + 1 == value$loc(1,1,2)) != byrow) {
@@ -53,7 +57,8 @@ function(x,i,j,k=NULL,value) {
     }
     value <- value$losses
   }
-  if (class(value) != "list") {
+  #if (class(value) != "list") {
+  if (!is(value, "list")) {
     stop("need a 'list' object for insertion")
   }
 

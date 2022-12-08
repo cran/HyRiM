@@ -1,15 +1,19 @@
 Package history:
 ================
 
-09.06.2021 (version 2.0.1) 
+06.12.2022 (version 2.0.2)
+* CHANGE: updated manual pages by adding new (recent) literature references and revising explanations
+09.05.2022 
+* CHANGE: fixed dependency on "orthopolynom", due to some checking issues with this package (published on https://cran.r-project.org/web/checks/check_results_orthopolynom.html).
+09.06.2021 (version 2.0.1)
 * BUGFIX: added tolerance parameter "tol" to function mgss, to account for roundoff errors behind the 5th digit after the comma when solving the linear programs
 05.05.2021
 * BUGFIX: in some cases, numeric roundoff errors encountered internally in the constraints of the LPs made the linear
   programs infeasible. Added an optional tolerance parameter "tol", defaulting to zero for exact solutions, but usable
   to fix the roundoff errors if needed.
-09.04.2020 
-* CHANGE: replaced fictitious play to compute approximate security strategies by an exact algorithm using linear programming. This will be version 2.0.0 of the package, 
-pending for release over CRAN. It is no longer downwards compatible regarding the function <code>mgss</code> to code using version 1.x.x. Thanks to Ali Alshawish and Vincent Bürgin for reporting the 
+09.04.2020
+* CHANGE: replaced fictitious play to compute approximate security strategies by an exact algorithm using linear programming. This will be version 2.0.0 of the package,
+pending for release over CRAN. It is no longer downwards compatible regarding the function <code>mgss</code> to code using version 1.x.x. Thanks to Ali Alshawish and Vincent Bürgin for reporting the
 convergence issues with fictitious play that led to this change.
 * FEATURE: added support for real-valued multi-criteria games that use lexicographically ordered payoffs
 * FEATURE: extended the function "disappointmentRate" to take matrix games over the reals and
@@ -22,7 +26,7 @@ convergence issues with fictitious play that led to this change.
 * FEATURE: added vignette paper (displayable via 'RShowDoc("vignette", type="pdf", package="HyRiM")')
 04.09.2018:
 * BUGFIX: function "mosg" incorrectly handled the parameter setting "byrow = FALSE"
-* BUGFIX: "moment" was on categorical distributions incorrectly using "range" rather than "supp" 
+* BUGFIX: "moment" was on categorical distributions incorrectly using "range" rather than "supp"
 26.07.2018:
 * BUGFIX: games with numeric payoffs fail if one of the payoffs is an integer power of 10 (so that the internal distributions become degenerate in this case)
 24.07.2018
@@ -41,5 +45,5 @@ convergence issues with fictitious play that led to this change.
 * BUGFIX: density, when applied to continuous distributions, returned zero for vector arguments in some occasions
 10.07.2017
 * BUGFIX: "range" now properly updated after smoothing a density (previously, the range was set based on the data, but not updated after smoothing, which caused errors when moments were computed (visible by warning messages))
-* FEATURE: if loss distributions with empty categories are supplied, the error now tells where the problem occurred in the game (row, column and goal) 
+* FEATURE: if loss distributions with empty categories are supplied, the error now tells where the problem occurred in the game (row, column and goal)
 

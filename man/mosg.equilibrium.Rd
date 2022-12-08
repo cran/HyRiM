@@ -5,10 +5,10 @@
 \alias{print.mosg.equilibrium.summary}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-embodies all information related to an equilibrium computed by the function \code{mgss}.
+embodies all information related to a lexicographic Nash equilibrium computed by the function \code{mgss}.
 }
 \description{
-The generic functions \code{print} and \code{summary} provide brief, and detailed information about the equilibrium. The generic function \code{plot} can be used to visualize the equilibrium.
+The generic functions \code{print} and \code{summary} provide brief, and detailed information about the lexicographic Nash equilibrium. The generic function \code{plot} can be used to visualize the equilibrium.
 }
 \usage{
 \method{summary}{mosg.equilibrium}(object, ...)
@@ -79,8 +79,6 @@ Stefan Rass
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-library(compare)
-library(orthopolynom)
 ## raw data (PURELY ARTIFICIAL, for demo purposes only)
 # N=100 observations in each category
 obs111<-c(rep(1,40),rep(3,20),rep(5,10),rep(7,20),rep(9,10));

@@ -42,16 +42,17 @@ utils::globalVariables(c("x"))  # to avoid issues with
 
   if (!G$losses[[1]]$is.discrete) {
     ###### compute Taylor approximations for loss distributions
-    hpoly <-
-      orthopolynom::hermite.h.polynomials(ord, normalized = FALSE)# Hermite polynomials needed to compute derivatives of normal kernel
+    #hpoly <-
+    #  orthopolynom::hermite.h.polynomials(ord, normalized = FALSE)# Hermite polynomials needed to compute derivatives of normal kernel
     # o-th derivative
+    # NOTE: due to package checking issues with "orthopolynom", the relevant code from this package has been transferred hereto (with fixes)
     derivdens <- function(z, obs, o, bw) {
       N <- length(obs)
       derivdensfactor <-
         1 / (N * bw) / sqrt(2 * pi) * (-1 / (sqrt(2) * bw)) ^
         o
       derivdens <- 0
-      hpoly <- orthopolynom::hermite.h.polynomials(ord, normalized = FALSE)
+      hpoly <- .hermite_h_polynomials(ord, normalized = FALSE)
       # for efficiency, pull out factors that do not depend on i in the following summation
       c1 <- -1 / (2 * bw ^ 2)
       c2 <- 1 / (sqrt(2) * bw)
@@ -142,4 +143,101 @@ utils::globalVariables(c("x"))  # to avoid issues with
       N - 1  # take care for the code to assume the lists to have a length = ord + 1
   } # end of preprocessing for discrete distributions
   return(Ai)
+}
+
+################################################################################
+# the following code was directly copied from "orthopolynom" package,
+# version 1.0-5, licensed under GPL (>=2)
+# this is for fixing issues with the orthopolynom package, as published on https://cran.r-project.org/web/checks/check_results_orthopolynom.html
+.hermite_h_recurrences <- function (n, normalized = FALSE)
+{
+  if (n < 0)
+    stop("negative highest polynomial order")
+  if (n != round(n))
+    stop("highest polynomial order is not an integer")
+  np1 <- n + 1
+  r <- data.frame(matrix(nrow = np1, ncol = 4))
+  names(r) <- c("c", "d", "e", "f")
+  j <- 0
+  k <- 1
+  if (normalized) {
+    while (j <= n) {
+      r[k, "c"] <- 1
+      r[k, "d"] <- 0
+      r[k, "e"] <- sqrt(2/(j + 1))
+      if (j == 0) {
+        r[k, "f"] <- 0
+      }
+      else {
+        if (k == 1) {
+          r[k, "f"] <- 0
+        }
+        else {
+          r[k, "f"] <- sqrt(j/(j + 1))
+        }
+      }
+      j <- j + 1
+      k <- k + 1
+    }
+    return(r)
+  }
+  else {
+    while (j <= n) {
+      r[k, "c"] <- 1
+      r[k, "d"] <- 0
+      r[k, "e"] <- 2
+      r[k, "f"] <- 2 * j
+      j <- j + 1
+      k <- k + 1
+    }
+    return(r)
+  }
+  return(NULL)
+}
+
+.orthogonal_polynomials <- function (recurrences)
+{
+  #require(polynom)   # this was required to be removed (see the above URL)
+  np1 <- nrow(recurrences)
+  n <- np1 - 1
+  c <- recurrences$c
+  d <- recurrences$d
+  e <- recurrences$e
+  f <- recurrences$f
+  polynomials <- as.list(rep(NULL, np1))
+  p.0 <- polynomial(c(1))
+  polynomials[[1]] <- p.0
+  j <- 0
+  while (j < n) {
+    cj <- c[j + 1]
+    dj <- d[j + 1]
+    ej <- e[j + 1]
+    fj <- f[j + 1]
+    monomial <- polynomial(c(dj, ej))
+    if (j == 0) {
+      p.jp1 <- (monomial * p.0)/cj
+    }
+    else {
+      p.jm1 <- polynomials[[j]]
+      p.j <- polynomials[[j + 1]]
+      p.jp1 <- (monomial * p.j - fj * p.jm1)/cj
+    }
+    polynomials[[j + 2]] <- p.jp1
+    j <- j + 1
+  }
+  return(polynomials)
+}
+
+.hermite_h_polynomials <- function (n, normalized = FALSE)
+{
+  recurrences <- .hermite_h_recurrences(n, normalized)
+  # we do not need the polynomials to be normalized in this code
+#  if (normalized) {
+#    h.0 <- sqrt(pi)
+#    p.0 <- polynomial(c(1/sqrt(h.0)))
+#    polynomials <- .orthonormal_polynomials(recurrences, p.0)
+#  }
+#  else
+  polynomials <- .orthogonal_polynomials(recurrences)
+  return(polynomials)
 }

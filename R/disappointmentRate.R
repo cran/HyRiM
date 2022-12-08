@@ -29,11 +29,12 @@
 #
 disappointmentRate <-
 function(d, x, y, verbose = TRUE, ...) {
-  if (class(d) == "mosg.lossdistribution") {
+  #if (class(d) == "mosg.lossdistribution") {
+  if (is(d, "mosg.lossdistribution")) {
     expectation <- moment(ld = d, k = 1)
     return(1 - cdf(ld = d, x = expectation));
   }
-  else if (class(d) == "matrix") {
+  else if (is(d, "matrix")) {     #if (class(d) == "matrix") {
     n <- nrow(d)
     m <- ncol(d)
     # check if an equilibrium was provided,

@@ -111,7 +111,7 @@ For plotting games, \code{plot.mosg} constructs an (n x m)-matrix of loss distri
 The function \code{lossDistribution.mosg} can be used to compute the distribution \eqn{x^T*A*y}, for the payoff distribution matrix \eqn{A}, and mixed strategies \eqn{x} (\code{player1strat}) and \eqn{y} (\code{player2strat}) in the game. The computation is by a pointwise addition of loss distributions, with the number of points being specifiable by the parameter \code{points}, which defaults to 512.
 }
 \value{
-The function returns an object of class \code{mosg}, usable with the function \code{mgss} to determine a security strategy (i.e., an equilibrium assuming a zero-sum one-against-all competition). The fields returned in the \code{mosg} object are filled with the input values supplied. In detail, the fields are:
+The function returns an object of class \code{mosg}, usable with the function \code{mgss} to determine a security strategy (i.e., a lexicographic Nash equilibrium assuming a zero-sum one-against-all competition). The fields returned in the \code{mosg} object are filled with the input values supplied. In detail, the fields are:
 \item{nDefenses}{the value of the parameter \code{n}}
 \item{nAttacks}{the value of the parameter \code{m}}
 \item{dim}{the value of the parameter \code{goals}}
@@ -192,6 +192,6 @@ plot(G)
 #[1,]    3    4
 #[2,]    6    1
 G <- mosg(n = 2, m = 2, goals = 1, losses = list(3,6,4,1), byrow=FALSE)
-mgss(G)  # compute an equilibrium
+mgss(G)  # compute a lexicographic Nash equilibrium
 }
 

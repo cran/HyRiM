@@ -5,7 +5,8 @@ function(x,i,j,k=NULL) {
   goals <- 1:x$dim
   if (!missing(i)) {
     # take care of subsetting "by name"
-    if (class(i) == "character") {
+    #if (class(i) == "character") {
+    if (is(i, "character")) {
       i <- match(i, x$defensesDescr)
       if (anyNA(i)) {
         stop("unknown defense strategy")
@@ -17,7 +18,8 @@ function(x,i,j,k=NULL) {
     }
   }
   if (!missing(j)) {
-    if (class(j) == "character") {
+    #if (class(j) == "character") {
+    if (is(j, "character")) {
       j <- match(j, x$attacksDescr)
       if (anyNA(j)) {
         stop("unknown attack strategy")
@@ -29,7 +31,8 @@ function(x,i,j,k=NULL) {
     }
   }
   if (!is.null(k)) {
-    if (class(k) == "character") {
+    #if (class(k) == "character") {
+    if (is(k, "character")) {
       k <- match(k, x$goalDescriptions)
       if (anyNA(i)) {
         stop("unknown goal(s)")

@@ -4,7 +4,7 @@
 \title{
 compute a multi-goal security strategy}
 \description{
-Finds security strategy that assures a maximal loss w.r.t. all goals of the given game, delivering a Pareto-efficient loss bound. Internally, it constructs an auxiliary one-against-all game and uses a sequence of linear programs to compute a Pareto-Nash equilibrium therein (Rass, 2013), using the methods described by (Lozovanu et al 2005; Rass 2015).
+Finds security strategy that assures a maximal loss w.r.t. all goals of the given game, delivering a Pareto-efficient loss bound. Internally, it constructs an auxiliary one-against-all game and uses a sequence of linear programs to compute a lexicographic Nash equilibrium therein (Rass et al., 2022), using the methods described by (Lozovanu et al 2005; Rass, Wiegele & König 2020).
 }
 \usage{
 mgss(G, weights, cutOff, ord = 5, fbr = FALSE, points = 512, tol = 0.0)
@@ -34,7 +34,7 @@ occasionally, it was observed that the internal linear programs failed due to ro
 }
 }
 \details{
-For continuous loss distributions, the function uses a Gaussian kernel density approximation (constructed using the function \code{lossDistribution}), and computes a Taylor-polynomial approximation at the \eqn{x} equal to \code{cutOff} for each distribution up to order \code{ord}. Preferences are decided using the method put forth in (Rass, König, Schauer, 2016), using sign-alternating derivatives, representing a distribution by a vector with \code{ord} elements. Categorical distributions are represented likewise directly by the vector of their probability masses. In both cases, Theorem 3 and Lemma 4 in (Rass, König, Schauer 2016) allow a decision about the stochastic order between two distributions by a lexicographic comparison of the order between the vector-representation. Thus, the computed optima are lex-order optimal. Constructing a game using \code{mosg} with vectors in the payoff description can, consequently, allows to use \code{mgss} to compute lex-order optimal equilibria for multi-criteria games.
+For continuous loss distributions, the function uses a Gaussian kernel density approximation (constructed using the function \code{lossDistribution}), and computes a Taylor-polynomial approximation at the \eqn{x} equal to \code{cutOff} for each distribution up to order \code{ord}. Preferences are decided using the methods described by (Rass, König and Schauer; 2022), and (Rass, König, Schauer, Bürgin, Epperlein and Wirth; 2021), using sign-alternating derivatives, representing a distribution by a vector with \code{ord} elements. Categorical distributions are represented likewise directly by the vector of their probability masses. In both cases, preferences are decided by a lexicographic comparison of vector-representations. The returned optima are Nash equilibria for single-goal games, and lexicographic Nash equilibria for multi-goal games. Constructing a game using \code{mosg} with vectors in the payoff description can, consequently, allows to use \code{mgss} to compute optimal results with explicit goal priorities in multi-criteria games.
 }
 \value{
 An object of class \code{mosg.equilibrium}, containing the following fields:
@@ -54,6 +54,12 @@ The list can be accessed by the names for each goal as specified through the inp
 }
 
 \references{
+S. Rass, S. König, S. Schauer: Games over Probability Distributions Revisited: New Equilibrium Models and Refinements, MDPI Games 2022, 13(6), 80; DOI: https://doi.org/10.3390/g13060080, online: https://www.mdpi.com/2073-4336/13/6/80
+
+S. Rass, S. König, S. Schauer, V. Bürgin, J. Epperlein, F. Wirth: On Game Theory Using Stochastic Tail Orders, arXiv:2108.00680v1 [math.PR], 2021
+
+S. Rass, A. Wiegele, S. König: Security Games over Lexicographic Orders, in: Decision and Game Theory for Security, 11th International Conference, GameSec 2020, College Park, MD, USA, October 28–30, 2020, Proceedings, Springer LNCS 12513, ISBN 978-3-030-64792-6
+
 S. Rass, S. König, S. Schauer. Decisions with Uncertain Consequences-A Total Ordering on Loss-Distributions. PLoS ONE 11, e0168583. 2016, https://doi.org/10.1371/journal.pone.0168583
 
 S. Rass. On Game-Theoretic Risk Management (Part One). Towards a Theory of
@@ -84,8 +90,6 @@ As of version 2.0.0 of the package, this function is no longer downwards compati
 A brief info on the results can be obtained by \code{\link{print.mosg.equilibrium}}, and a more detailed summary (showing all loss distributions in detail) is obtained by \code{\link{summary.mosg.equilibrium}}.
 }
 \examples{
-library(compare)
-library(orthopolynom)
 ## raw data (PURELY ARTIFICIAL, for demo purposes only)
 # N=100 observations in each category
 obs111<-c(rep(1,40),rep(3,20),rep(5,10),rep(7,20),rep(9,10));
